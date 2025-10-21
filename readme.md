@@ -95,14 +95,14 @@ Converted datasets, including MOVi-C, MOVi-D and YTVIS are available as [release
 ## 🧠 Model Checkpoints & Training Logs
 
 **The checkpoints and training logs (@ random seeds 42, 43 and 44) for all models** are available as [releases](https://github.com/Genera1Z/RandSF.Q/releases). All backbones are unified as DINO2-S/14.
-- [archive-videosaur](https://github.com/Genera1Z/RandSF.Q/releases/tag/videosaur): VideoSAUR on MOVi-C/D and YTVIS.
+- [archive-videosaur](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-videosaur): VideoSAUR on MOVi-C/D and YTVIS.
     - My implementation of paper **Object-Centric Learning for Real-World Videos by Predicting Temporal Feature Similarities**, NeurIPS 2023.
 - [archive-slotcontrast](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-slotcontrast): SlotContrast on MOVi-C/D and YTVIS.
     - My implementation of paper **Temporally Consistent Object-Centric Learning by Contrasting Slots**, CVPR 2025 Oral.
 - [archive-randsfq](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq): RandSF.Q on MOVi-C/D and YTVIS.
     - Our proposed method RandSF.Q, which is built upon SlotContrast.
 - [archive-randsfq-tsim](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq-tsim): RandSF.Q, with time similarity loss, on MOVi-C/D and YTVIS.
-    - Our proposed method RandSF.Q, which is built upon VideoSAUR.
+    - Our proposed method RandSF.Q, which is built upon SlotContrast but using time similarity loss.
 
 
 

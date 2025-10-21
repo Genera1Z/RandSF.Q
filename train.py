@@ -163,6 +163,8 @@ def main(args):
 
     if ckpt_file:
         if isinstance(ckpt_file, (list, tuple)):
+            if len(ckpt_file) == 1:
+                cfg.ckpt_map = [cfg.ckpt_map]
             assert len(ckpt_file) == len(cfg.ckpt_map)
             [model.load(_, __) for _, __ in zip(ckpt_file, cfg.ckpt_map)]
         else:
@@ -245,7 +247,7 @@ def parse_args():
     parser.add_argument(
         "--cfg_file",
         type=str,
-        default="config-vqdino/vqdino-voc-c256.py",
+        default="config-randsfq-tsim/randsfq_r_recogn-ytvis.py",
         # default="config-smoothsa/smoothsa_r_recogn-coco.py",  # TODO XXX
         # default="config-spot/spot_r_recogn-coco.py",
         # default="config-smoothsa/smoothsav_r_recogn-ytvis.py",
@@ -259,6 +261,7 @@ def parse_args():
         "--ckpt_file",
         type=str,
         nargs="+",
+        default="archive-randsfq-tsim/randsfq_r-ytvis/42-0155.pth",
         # default="../_20250620-dias0_randsfq_smoothsa-ckpt/20250620-dias0_randsfq_smoothsa-smoothsa/save/smoothsa_r-coco/42-0021.pth",
         # default="../_20250620-dias0_randsfq_smoothsa-ckpt/20250620-dias0_randsfq_smoothsa-spot/save/spot_r-coco/42-0020.pth",
         # default="../_20250620-dias0_randsfq_smoothsa-ckpt/20250620-dias0_randsfq_smoothsa-smoothsav-vvv/save/smoothsav_r-ytvis/42-0159.pth",
