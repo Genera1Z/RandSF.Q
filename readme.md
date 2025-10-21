@@ -95,7 +95,7 @@ Converted datasets, including MOVi-C, MOVi-D and YTVIS are available as [release
 ## 🧠 Model Checkpoints & Training Logs
 
 **The checkpoints and training logs (@ random seeds 42, 43 and 44) for all models** are available as [releases](https://github.com/Genera1Z/RandSF.Q/releases). All backbones are unified as DINO2-S/14.
-- [archive-videosaur](https://github.com/Genera1Z/RandSF.Q/releases/tag/videosaur): VideoSAUR on MOVi-C/D and YTVIS.
+- [archive-videosaur](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-videosaur): VideoSAUR on MOVi-C/D and YTVIS.
     - My implementation of paper **Object-Centric Learning for Real-World Videos by Predicting Temporal Feature Similarities**, NeurIPS 2023.
 - [archive-slotcontrast](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-slotcontrast): SlotContrast on MOVi-C/D and YTVIS.
     - My implementation of paper **Temporally Consistent Object-Centric Learning by Contrasting Slots**, CVPR 2025 Oral.
