@@ -260,7 +260,6 @@ def main_eval_multi():
     log_file = Path("eval_multi.csv")
     log_file.touch()
     keys = ("ari", "ari_fg", "mbo", "miou")
-    # keys = ("recon", "align", "commit")
     for cfgf, ckptfs in zip(cfg_files, ckpt_files):
         cfgf = Path(cfgf)
         for ckptf in ckptfs:
