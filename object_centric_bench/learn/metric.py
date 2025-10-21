@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-import lpips
 import numpy as np
 import torch as pt
 import torch.nn as nn

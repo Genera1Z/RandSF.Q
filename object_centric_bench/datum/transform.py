@@ -9,9 +9,6 @@ import torchvision.transforms.v2 as ptvt2
 from ..util import DictTool
 
 
-# TODO XXX all subclass nn.Module TODO XXX
-
-
 class Lambda:
     """Wrapping simple transforms that can be coded in one line.
     Support arbitrary number of inputs and arbitrary number of outputs.

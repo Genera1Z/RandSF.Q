@@ -2,11 +2,9 @@ from io import BytesIO
 import colorsys
 
 import av
-import cv2
 import numpy as np
 import torch as pt
 import torchvision.utils as ptvu
-import torch.nn.functional as ptnf
 
 
 def mask_segment_to_bbox_np(segment):

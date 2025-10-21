@@ -179,35 +179,35 @@ def main_eval_single(
 
 def main_eval_multi():
     cfg_files = [
-        # "config-randsfq/randsfq_c-movi_c.py",
-        # "config-randsfq/randsfq_c-movi_d.py",
-        # "config-randsfq/randsfq_r-ytvis.py",
+        "config-randsfq/randsfq_c-movi_c.py",
+        "config-randsfq/randsfq_c-movi_d.py",
+        "config-randsfq/randsfq_r-ytvis.py",
         "config-randsfq-tsim/randsfq_c-movi_c.py",
         "config-randsfq-tsim/randsfq_c-movi_d.py",
         "config-randsfq-tsim/randsfq_r-ytvis.py",
-        # "config-slotcontrast/slotcontrast_c-movi_c.py",
-        # "config-slotcontrast/slotcontrast_c-movi_d.py",
-        # "config-slotcontrast/slotcontrast_r-ytvis.py",
-        # "config-videosaur/videosaur_c-movi_c.py",
-        # "config-videosaur/videosaur_c-movi_d.py",
-        # "config-videosaur/videosaur_r-ytvis.py",
+        "config-slotcontrast/slotcontrast_c-movi_c.py",
+        "config-slotcontrast/slotcontrast_c-movi_d.py",
+        "config-slotcontrast/slotcontrast_r-ytvis.py",
+        "config-videosaur/videosaur_c-movi_c.py",
+        "config-videosaur/videosaur_c-movi_d.py",
+        "config-videosaur/videosaur_r-ytvis.py",
     ]
     ckpt_files = [
-        # [
-        #    "archive-randsfq/randsfq_c-movi_c/42-0034.pth",
-        #    "archive-randsfq/randsfq_c-movi_c/43-0036.pth",
-        #    "archive-randsfq/randsfq_c-movi_c/44-0029.pth",
-        # ],
-        # [
-        #    "archive-randsfq/randsfq_c-movi_d/42-0036.pth",
-        #    "archive-randsfq/randsfq_c-movi_d/43-0025.pth",
-        #    "archive-randsfq/randsfq_c-movi_d/44-0025.pth",
-        # ],
-        # [
-        #    "archive-randsfq/randsfq_r-ytvis/42-0120.pth",
-        #    "archive-randsfq/randsfq_r-ytvis/43-0146.pth",
-        #    "archive-randsfq/randsfq_r-ytvis/44-0120.pth",
-        # ],
+        [
+            "archive-randsfq/randsfq_c-movi_c/42-0034.pth",
+            "archive-randsfq/randsfq_c-movi_c/43-0036.pth",
+            "archive-randsfq/randsfq_c-movi_c/44-0029.pth",
+        ],
+        [
+            "archive-randsfq/randsfq_c-movi_d/42-0036.pth",
+            "archive-randsfq/randsfq_c-movi_d/43-0025.pth",
+            "archive-randsfq/randsfq_c-movi_d/44-0025.pth",
+        ],
+        [
+            "archive-randsfq/randsfq_r-ytvis/42-0120.pth",
+            "archive-randsfq/randsfq_r-ytvis/43-0146.pth",
+            "archive-randsfq/randsfq_r-ytvis/44-0120.pth",
+        ],
         [
             "archive-randsfq-tsim/randsfq_c-movi_c/42-0031.pth",
             "archive-randsfq-tsim/randsfq_c-movi_c/43-0029.pth",
@@ -223,36 +223,36 @@ def main_eval_multi():
             "archive-randsfq-tsim/randsfq_r-ytvis/43-0120.pth",
             "archive-randsfq-tsim/randsfq_r-ytvis/44-0172.pth",
         ],
-        # [
-        #    "archive-slotcontrast/slotcontrast_c-movi_c/42-0034.pth",
-        #    "archive-slotcontrast/slotcontrast_c-movi_c/43-0032.pth",
-        #    "archive-slotcontrast/slotcontrast_c-movi_c/44-0033.pth",
-        # ],
-        # [
-        #    "archive-slotcontrast/slotcontrast_c-movi_d/42-0030.pth",
-        #    "archive-slotcontrast/slotcontrast_c-movi_d/43-0032.pth",
-        #    "archive-slotcontrast/slotcontrast_c-movi_d/44-0028.pth",
-        # ],
-        # [
-        #    "archive-slotcontrast/slotcontrast_r-ytvis/42-0155.pth",
-        #    "archive-slotcontrast/slotcontrast_r-ytvis/43-0155.pth",
-        #    "archive-slotcontrast/slotcontrast_r-ytvis/44-0172.pth",
-        # ],
-        # [
-        #    "archive-videosaur/videosaur_c-movi_c/42-0034.pth",
-        #    "archive-videosaur/videosaur_c-movi_c/43-0041.pth",
-        #    "archive-videosaur/videosaur_c-movi_c/44-0028.pth",
-        # ],
-        # [
-        #    "archive-videosaur/videosaur_c-movi_d/42-0025.pth",
-        #    "archive-videosaur/videosaur_c-movi_d/43-0029.pth",
-        #    "archive-videosaur/videosaur_c-movi_d/44-0025.pth",
-        # ],
-        # [
-        #    "archive-videosaur/videosaur_r-ytvis/42-0112.pth",
-        #    "archive-videosaur/videosaur_r-ytvis/43-0155.pth",
-        #    "archive-videosaur/videosaur_r-ytvis/44-0120.pth",
-        # ],
+        [
+            "archive-slotcontrast/slotcontrast_c-movi_c/42-0034.pth",
+            "archive-slotcontrast/slotcontrast_c-movi_c/43-0032.pth",
+            "archive-slotcontrast/slotcontrast_c-movi_c/44-0033.pth",
+        ],
+        [
+            "archive-slotcontrast/slotcontrast_c-movi_d/42-0030.pth",
+            "archive-slotcontrast/slotcontrast_c-movi_d/43-0032.pth",
+            "archive-slotcontrast/slotcontrast_c-movi_d/44-0028.pth",
+        ],
+        [
+            "archive-slotcontrast/slotcontrast_r-ytvis/42-0155.pth",
+            "archive-slotcontrast/slotcontrast_r-ytvis/43-0155.pth",
+            "archive-slotcontrast/slotcontrast_r-ytvis/44-0172.pth",
+        ],
+        [
+            "archive-videosaur/videosaur_c-movi_c/42-0034.pth",
+            "archive-videosaur/videosaur_c-movi_c/43-0041.pth",
+            "archive-videosaur/videosaur_c-movi_c/44-0028.pth",
+        ],
+        [
+            "archive-videosaur/videosaur_c-movi_d/42-0025.pth",
+            "archive-videosaur/videosaur_c-movi_d/43-0029.pth",
+            "archive-videosaur/videosaur_c-movi_d/44-0025.pth",
+        ],
+        [
+            "archive-videosaur/videosaur_r-ytvis/42-0112.pth",
+            "archive-videosaur/videosaur_r-ytvis/43-0155.pth",
+            "archive-videosaur/videosaur_r-ytvis/44-0120.pth",
+        ],
     ]
 
     assert len(cfg_files) == len(ckpt_files)

@@ -14,4 +14,4 @@ from .transform import (
     StridedRandomSlice1,
 )
 from .transform_bbox import Ltrb2Xywh, Xywh2Ltrb
-from .collate import PadToMax1, DefaultCollate
+from .collate import PadToMax1

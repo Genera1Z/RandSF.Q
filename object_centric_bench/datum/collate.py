@@ -31,11 +31,3 @@ class PadToMax1:
                 DictTool.setattr(sample, key, output)
 
         return ptud.default_collate(samples)
-
-
-class DefaultCollate:
-    """
-    default_collate from PyTorch"""
-
-    def __call__(self, samples: list) -> dict:
-        return ptud.default_collate(samples)

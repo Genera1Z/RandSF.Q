@@ -1,8 +1,7 @@
-from einops import rearrange, repeat
+from einops import rearrange
 import numpy as np
 import torch as pt
 import torch.nn as nn
-import torch.nn.functional as ptnf
 
 from ..util_learn import hungarian_matching, intersection_over_union
 
