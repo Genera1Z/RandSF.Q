@@ -44,7 +44,7 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 | videosaur_r-ytvis     |  34.4±0.6 |  48.9±0.6 | 31.1±0.3 | 30.9±0.3 |
 
 
-## (2) Old Performance Values
+### (2) Old Performance Values
 
 **Object discovery accuracy**:
 <img src="res/acc_obj_discov.png" style="width:100%">
