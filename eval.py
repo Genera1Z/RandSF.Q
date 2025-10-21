@@ -43,9 +43,6 @@ def val_epoch(cfg, dataset_v, model, loss_fn, acc_fn_v, callback_v):
             pack.loss = pack.loss_fn(**pack)
         pack.acc = pack.acc_fn_v(**pack)
 
-        if hasattr(pack2, "slotz"):
-            pack2.slotz.append(pack.output["slotz"].half().cpu().numpy())
-
         if 0:  # TODO XXX
             # makdir
             save_dn = Path(cfg.name)
