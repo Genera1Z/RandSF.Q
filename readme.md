@@ -28,7 +28,7 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 
 ### (1) ⭐⭐⭐ Re-evaluated Performance Values @ Version 3 ⭐⭐⭐
 
-Object discovery:
+**Object discovery**:
 
 |                       |    ari    |   arifg   |    mbo   |   miou   |
 |-----------------------|:---------:|:---------:|:--------:|:--------:|
@@ -45,7 +45,7 @@ Object discovery:
 | videosaur_c-movi_d    |  22.5±5.0 | 40.0±20.1 | 11.6±6.6 | 10.8±6.1 |
 | videosaur_r-ytvis     |  34.4±0.6 |  48.9±0.6 | 31.1±0.3 | 30.9±0.3 |
 
-Object recognition:
+**Object recognition**:
 |                             | class top1 | class top3 | bbox iou | matched num |
 |----------------------------:|:----------:|:----------:|:--------:|:-----------:|
 |      randsfq_r_recogn-ytvis |  28.0±0.9  |  64.1±2.5  | 55.5±0.6 |   7601±149  |
