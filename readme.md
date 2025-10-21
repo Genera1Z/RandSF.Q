@@ -102,7 +102,7 @@ Converted datasets, including MOVi-C, MOVi-D and YTVIS are available as [release
 - [archive-randsfq](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq): RandSF.Q on MOVi-C/D and YTVIS.
     - Our proposed method RandSF.Q, which is built upon SlotContrast.
 - [archive-randsfq-tsim](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq-tsim): RandSF.Q, with time similarity loss, on MOVi-C/D and YTVIS.
-    - Our proposed method RandSF.Q, which is built upon VideoSAUR.
+    - Our proposed method RandSF.Q, which is built upon SlotContrast but using time similarity loss.
 
 
 
