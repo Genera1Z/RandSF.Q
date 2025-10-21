@@ -111,7 +111,7 @@ Object recognition:
 - archive-randsfq-tsim/
 - archive-slotcontrast/ # baseline model checkpoints and training logs
 - archive-videosaur/
-- archive-recogn        # object recognition models based on RandSF.Q and SlotContrast
+- archive-recogn/       # object recognition models based on RandSF.Q and SlotContrast
 ```
 
 
