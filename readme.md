@@ -137,8 +137,7 @@ Datasets MOVi-C, MOVi-D and YTVIS, that are converted into LMDB format and can b
 - [archive-randsfq-tsim](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq-tsim): RandSF.Q, with time similarity loss, on MOVi-C/D and YTVIS.
     - Our proposed method RandSF.Q, which is built upon SlotContrast but using time similarity loss.
 - [archive-recogn](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-recogn): Object recognition models based on pretrained RandSF.Q-tsim and SlotContrast, on YTVIS.
-    - Slots extracted by RandSF.Q or SlotContrast are matched ground-truth object segmentations by threshold 1e-1@IoU, and are used to train category classification and bounding box regression.
-
+    - Slots extracted by RandSF.Q or SlotContrast are matched with ground-truth object segmentations by threshold 1e-1@IoU, and the matched slots are used to train category classification and bounding box regression
 
 
 ## 🔥 How to Use
