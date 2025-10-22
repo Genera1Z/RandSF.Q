@@ -118,7 +118,7 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 
 ## 🚀 Converted Datasets
 
-Datasets MOVi-C, MOVi-D and YTVIS, that are converted into LMDB format and can be used off-the-shelf, are available as [releases](https://github.com/Genera1Z/RandSF.Q/releases).
+Datasets MOVi-C, MOVi-D and YTVIS, which are converted into LMDB format and can be used off-the-shelf, are available as [releases](https://github.com/Genera1Z/RandSF.Q/releases).
 - [dataset-movi_c](https://github.com/Genera1Z/RandSF.Q/releases/tag/dataset-movi_c): converted dataset [MOVi-C](https://github.com/google-research/kubric/blob/main/challenges/movi).
 - [dataset-movi_d](https://github.com/Genera1Z/VQ-VFM-OCL/releases/tag/dataset-movi_d): converted dataset [MOVi-D](https://github.com/google-research/kubric/blob/main/challenges/movi).
 - [dataset-ytvis](https://github.com/Genera1Z/RandSF.Q/releases/tag/dataset-ytvis): converted dataset [YTVIS](https://youtube-vos.org/dataset/vis), the [high-quality](https://github.com/SysCV/vmt?tab=readme-ov-file#hq-ytvis-high-quality-video-instance-segmentation-dataset) version.
