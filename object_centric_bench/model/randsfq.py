@@ -9,7 +9,9 @@ Object-Centric Video Prediction via Decoupling of Object Dynamics and Interactio
 https://github.com/hanoonaR/object-centric-ovd
 """
 
-from einops import rearrange
+import random
+
+from einops import rearrange, repeat
 import torch as pt
 import torch.nn as nn
 

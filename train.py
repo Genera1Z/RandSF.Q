@@ -277,5 +277,5 @@ def parse_args():
 
 if __name__ == "__main__":
     # with pt.autograd.detect_anomaly(True):  # detect NaN
-    pt._dynamo.config.suppress_errors = True  # TODO XXX one_hot, interplolate
+    pt._dynamo.config.suppress_errors = True  # one_hot, interplolate
     main(parse_args())
