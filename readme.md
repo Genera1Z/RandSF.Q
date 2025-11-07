@@ -15,7 +15,7 @@ Unsupervised video Object-Centric Learning (OCL) is promising as it enables obje
 
 
 
-<!-- ## 🎉 Accepted to ACM MM 2025 as a Poster -->
+## 🎉 Accepted to AAAI 2026 as a Poster
 
 Official source code, model checkpoints and training logs for paper "**Predicting Video Slot Attention Queries from Random Slot-Feature Pairs**".
 
