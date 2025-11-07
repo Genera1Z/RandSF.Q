@@ -231,7 +231,7 @@ If you find this repo useful, please cite our work.
 @article{zhao2025randsfq,
   title={{Predicting Video Slot Attention Queries from Random Slot-Feature Pairs}},
   author={Zhao, Rongzhen and Li, Jian and Kannala, Juho and Pajarinen, Joni},
-  journal={arXiv:2508.01345},
-  year={2025}
+  journal={AAAI},
+  year={2026}
 }
 ```
