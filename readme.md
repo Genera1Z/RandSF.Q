@@ -1,4 +1,4 @@
-# RandSF.Q : Predicting Video Slot Attention Queries from Random Slot-Feature Pairs
+# `RandSF.Q` Predicting Video Slot Attention Queries from Random Slot-Feature Pairs
 
 
 
