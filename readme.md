@@ -52,7 +52,7 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 | slotcontrast_r_recogn-ytvis |  19.2±1.6  |  50.9±3.2  | 53.9±0.1 |   9155±363  |
 
 
-### (2) Old Performance Values
+### (2) All Performance Values Together
 
 **Object discovery accuracy**:
 <img src="res/acc_obj_discov.png" style="width:100%">
