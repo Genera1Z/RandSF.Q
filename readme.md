@@ -48,8 +48,8 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 **Object recognition**:
 |                             | class top1 | class top3 | bbox iou | #match |
 |----------------------------:|:----------:|:----------:|:--------:|:-----------:|
-|      randsfq_r_recogn-ytvis |  28.0±0.9  |  64.1±2.5  | 55.5±0.6 |   7601±149  |
-| slotcontrast_r_recogn-ytvis |  19.2±1.6  |  50.9±3.2  | 53.9±0.1 |   9155±363  |
+|      randsfq_r_recogn-ytvis |  26.1±1.3  |  60.9±3.2  | 54.5±0.6 |   7579±201  |
+| slotcontrast_r_recogn-ytvis |  19.9±2.0  |  49.1±3.1  | 53.5±0.2 |   9259±26   |
 
 
 ### (2) All Performance Values Together
