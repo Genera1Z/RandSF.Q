@@ -12,21 +12,11 @@ class ARRandTransformerDecoder(nn.Module):
     Auto-regressive Transformer decoder with random token permutations.
     """
 
-    def __init__(
-        self,
-        vfm_dim,
-        posit_embed,
-        # posit_embed_hw,
-        project1,
-        project2,
-        backbone,
-        readout,
-    ):
+    def __init__(self, vfm_dim, posit_embed, project1, project2, backbone, readout):
         super().__init__()
         self.mask_token = nn.Parameter(pt.randn(1, 1, vfm_dim) * vfm_dim**-0.5)
         assert hasattr(posit_embed, "pe")
-        self.posit_embed = posit_embed  # 1d
-        # self.posit_embed_hw = posit_embed_hw  # 2d
+        self.posit_embed = posit_embed
         self.project1 = project1
         self.project2 = project2
 
@@ -76,12 +66,6 @@ class ARRandTransformerDecoder(nn.Module):
 
         # TODO XXX disable masking in val for attent2 !!!
 
-        # mim-predict-all-masked-tokens
-        # seg1:
-        # "ari": 0.20348355174064636, "ari_fg": 0.34435588121414185, "mbo": 0.29168349504470825, "miou": 0.2779198884963989
-        # seg2:  # TODO disable masking in val for attent2 !!!
-        # 'ari': 0.2038770616054535, 'ari_fg': 0.3444632291793823, 'mbo': 0.29167482256889343, 'miou': 0.27789679169654846
-
         if self.training:
             idxs = pt.vmap(  # (b,m)
                 lambda _: pt.randperm(m, device=device), randomness="different"
@@ -90,16 +74,9 @@ class ARRandTransformerDecoder(nn.Module):
 
             idxs0 = pt.arange(0, m, device=device)[None, :]  # (1,m)
             keep1 = pt.randint(0, m - 1, [b, 1], device=device)  # (b,1)
-            keep2 = (
-                pt.ones(b, 1, dtype=pt.long, device=device) * int(256 * 0.1) - 1
-            )  # TODO
-            # TODO XXX realize a Poisson: when in [0, 1], it is Poisson; when out, then uniformly re-distribute in [0, 1]
+            keep2 = pt.ones(b, 1, dtype=pt.long, device=device) * int(256 * 0.1) - 1
             cond = pt.rand(b, 1, device=device) < p
             keep = pt.where(cond, keep1, keep2)
-            # XXX 论文论述 XXX
-            # keep@0: SlotMixerDecoder
-            # 只预测下一个：ARTransformerDecoder
-            # 其中9种只预测下一个，AR9TransformerDecoder
             mask = idxs0 < keep  # (b,m)
 
             # shuffle tokens
@@ -110,20 +87,11 @@ class ARRandTransformerDecoder(nn.Module):
 
             # shuffle pe
             pe_expanded = self.posit_embed.pe[:, :m, :].expand(b, -1, -1)  # (b,m,c)
-            # pe_hw_expanded = self.posit_embed_hw.pe.flatten(1, -2)[:, :m, :].expand(
-            #     b, -1, -1
-            # )  # (b,m,c)
             pe_shuffled = pe_expanded.gather(1, idxs_expanded)  # (b,m,c)
-            # pe_hw_shuffled = pe_hw_expanded.gather(1, idxs_expanded)  # (b,m,c)
-
-            query = tokens_masked + pe_shuffled  # + pe_hw_shuffled
+            query = tokens_masked + pe_shuffled
 
         else:
-            query = (
-                tokens
-                + self.posit_embed.pe[:, :m, :]
-                # + self.posit_embed_hw.pe.flatten(1, -2)[:, :m, :]
-            )
+            query = tokens + self.posit_embed.pe[:, :m, :]
 
         memory = self.project2(slots)
         autoreg = self.backbone(
