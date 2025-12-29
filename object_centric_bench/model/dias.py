@@ -12,11 +12,21 @@ class ARRandTransformerDecoder(nn.Module):
     Auto-regressive Transformer decoder with random token permutations.
     """
 
-    def __init__(self, vfm_dim, posit_embed, project1, project2, backbone, readout):
+    def __init__(
+        self,
+        vfm_dim,
+        posit_embed,
+        # posit_embed_hw,
+        project1,
+        project2,
+        backbone,
+        readout,
+    ):
         super().__init__()
         self.mask_token = nn.Parameter(pt.randn(1, 1, vfm_dim) * vfm_dim**-0.5)
         assert hasattr(posit_embed, "pe")
-        self.posit_embed = posit_embed
+        self.posit_embed = posit_embed  # 1d
+        # self.posit_embed_hw = posit_embed_hw  # 2d
         self.project1 = project1
         self.project2 = project2
 
@@ -87,11 +97,20 @@ class ARRandTransformerDecoder(nn.Module):
 
             # shuffle pe
             pe_expanded = self.posit_embed.pe[:, :m, :].expand(b, -1, -1)  # (b,m,c)
+            # pe_hw_expanded = self.posit_embed_hw.pe.flatten(1, -2)[:, :m, :].expand(
+            #     b, -1, -1
+            # )  # (b,m,c)
             pe_shuffled = pe_expanded.gather(1, idxs_expanded)  # (b,m,c)
-            query = tokens_masked + pe_shuffled
+            # pe_hw_shuffled = pe_hw_expanded.gather(1, idxs_expanded)  # (b,m,c)
+
+            query = tokens_masked + pe_shuffled  # + pe_hw_shuffled
 
         else:
-            query = tokens + self.posit_embed.pe[:, :m, :]
+            query = (
+                tokens
+                + self.posit_embed.pe[:, :m, :]
+                # + self.posit_embed_hw.pe.flatten(1, -2)[:, :m, :]
+            )
 
         memory = self.project2(slots)
         autoreg = self.backbone(

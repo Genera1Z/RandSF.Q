@@ -164,11 +164,29 @@ class RSFQTransit(nn.Module):
             te = pt.randint(1, i + 1, [b], dtype=pt.int64, device=device)
             encode = encodes[bidx, te, :, :]
             dte = i - te
+            # print(i, dts.tolist(), ts.tolist())
+            # print(i, dte.tolist(), te.tolist())
+            # import pdb; pdb.set_trace()
         else:
             slotz = slotzs[:, -1, :, :]
             dts = pt.ones(b, dtype=pt.int64, device=device)
             encode = encodes[:, -1, :, :]
             dte = pt.zeros(b, dtype=pt.int64, device=device)
+        # ### <<<- experiment
+        # if i + 1 >= self.dt:
+        #     print(self.ts_, self.te_)
+        #     ts = pt.ones(b, dtype=pt.int64, device=device) * self.ts_
+        #     slotz = slotzs[bidx, ts, :, :]
+        #     dts = i - ts
+        #     te = pt.ones(b, dtype=pt.int64, device=device) * self.te_
+        #     encode = encodes[bidx, te, :, :]
+        #     dte = i - te
+        # else:
+        #     slotz = slotzs[:, -1, :, :]
+        #     dts = pt.ones(b, dtype=pt.int64, device=device)
+        #     encode = encodes[:, -1, :, :]
+        #     dte = pt.zeros(b, dtype=pt.int64, device=device)
+        # ### ->>>
 
         tes = self.te(dts)[:, None, :]
         slotz = slotz.detach() + tes

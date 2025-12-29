@@ -173,7 +173,7 @@ def main(args):
         model.freez(cfg.freez)
 
     model = model.cuda()
-    # model.compile()  # TODO XXX comment this for debugging
+    model.compile()  # TODO XXX comment this for debugging
 
     ## learn init
 
@@ -262,7 +262,7 @@ def parse_args():
         "--ckpt_file",
         type=str,
         nargs="+",
-        default="archive-randsfq-tsim/randsfq_r-ytvis/42-0155.pth",
+        # default="archive-randsfq-tsim/randsfq_r-ytvis/42-0155.pth",
         # default="../_20250620-dias0_randsfq_smoothsa-ckpt/20250620-dias0_randsfq_smoothsa-smoothsa/save/smoothsa_r-coco/42-0021.pth",
         # default="../_20250620-dias0_randsfq_smoothsa-ckpt/20250620-dias0_randsfq_smoothsa-spot/save/spot_r-coco/42-0020.pth",
         # default="../_20250620-dias0_randsfq_smoothsa-ckpt/20250620-dias0_randsfq_smoothsa-smoothsav-vvv/save/smoothsav_r-ytvis/42-0159.pth",

@@ -12,7 +12,7 @@ from object_centric_bench.util import Config, build_from_config
 
 
 @pt.inference_mode()
-def val_epoch(cfg, dataset_v, model, loss_fn, acc_fn_v, callback_v):
+def val_epoch(cfg, dataset_v, model, loss_fn_v, acc_fn_v, callback_v):
     pack = Config({})
     pack.dataset_v = dataset_v
     pack.model = model
