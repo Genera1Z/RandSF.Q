@@ -2,6 +2,7 @@
 Copyright (c) 2024 Genera1Z
 https://github.com/Genera1Z
 """
+
 """
 Reasoning-Enhanced Object-Centric Learning for Videos
 https://github.com/intell-sci-comput/STATM
@@ -83,19 +84,16 @@ class RandSFQ(nn.Module):
         encode = rearrange(encode, "(b t) hw c -> b t hw c", b=b)
 
         slotz = None
-        attent = []
+        attenta = []
 
         for i in range(t):
-            if i == 0:
-                query_i = self.initializ(
-                    b if condit is None else condit[:, 0, :, :]
-                )  # (b,n,c)
-            else:
-                # slotz: [0,i); encode: [0,i]
+            if i == 0:  # (b,n,c)
+                query_i = self.initializ(b if condit is None else condit[:, 0, :, :])
+            else:  # slotz: [0,i); encode: [0,i]
                 query_i = self.transit(slotz, encode[:, : i + 1, :, :])
 
             niter = None if i == 0 else 1
-            slotz_i, attent_i = self.aggregat(
+            slotz_i, attenta_i = self.aggregat(
                 encode[:, i, :, :], query_i, num_iter=niter
             )
 
@@ -104,18 +102,18 @@ class RandSFQ(nn.Module):
                 if slotz is None
                 else pt.concat([slotz, slotz_i[:, None, :, :]], 1)
             )
-            attent.append(attent_i)  # t*(b,n,h*w)
+            attenta.append(attenta_i)  # t*(b,n,h*w)
             # TODO XXX add latent act_token
 
-        attent = pt.stack(attent, 1)  # (b,t,n,h*w)
-        attent = rearrange(attent, "b t n (h w) -> b t n h w", h=h)
+        attenta = pt.stack(attenta, 1)  # (b,t,n,h*w)
+        attenta = rearrange(attenta, "b t n (h w) -> b t n h w", h=h)
 
         clue = rearrange(feature, "b t c h w -> (b t) (h w) c")
-        recon, attent2 = self.decode(clue, slotz.flatten(0, 1))  # (b*t,h*w,c)
+        recon, attentd = self.decode(clue, slotz.flatten(0, 1))  # (b*t,h*w,c)
         recon = rearrange(recon, "(b t) (h w) c -> b t c h w", b=b, h=h)
-        attent2 = rearrange(attent2, "(b t) n (h w) -> b t n h w", b=b, h=h)
+        attentd = rearrange(attentd, "(b t) n (h w) -> b t n h w", b=b, h=h)
 
-        return feature, slotz, attent, attent2, recon
+        return feature, slotz, attenta, recon, attentd
 
 
 class RSFQTransit(nn.Module):
@@ -195,4 +193,3 @@ class RSFQTransit(nn.Module):
 
         query = self.transit(slotz, encode)
         return query
-

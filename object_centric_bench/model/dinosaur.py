@@ -2,6 +2,7 @@
 Copyright (c) 2024 Genera1Z
 https://github.com/Genera1Z
 """
+
 from einops import rearrange, repeat
 import torch as pt
 import torch.nn as nn
@@ -57,15 +58,15 @@ class DINOSAUR(nn.Module):
         encode = self.encode_project(encode)
 
         query = self.initializ(b if condit is None else condit)  # (b,n,c)
-        slotz, attent = self.aggregat(encode, query)
-        attent = rearrange(attent, "b n (h w) -> b n h w", h=h)
+        slotz, attenta = self.aggregat(encode, query)
+        attenta = rearrange(attenta, "b n (h w) -> b n h w", h=h)
 
         clue = [h, w]
-        recon, attent2 = self.decode(clue, slotz)  # (b,h*w,c)
+        recon, attentd = self.decode(clue, slotz)  # (b,h*w,c)
         recon = rearrange(recon, "b (h w) c -> b c h w", h=h)
-        attent2 = rearrange(attent2, "b n (h w) -> b n h w", h=h)
+        attentd = rearrange(attentd, "b n (h w) -> b n h w", h=h)
 
-        return feature, slotz, attent, attent2, recon
+        return feature, slotz, attenta, recon, attentd
         # segment acc: attent < attent2
 
 

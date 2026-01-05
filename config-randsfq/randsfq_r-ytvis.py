@@ -200,7 +200,7 @@ model = dict(
     ),
 )
 model_imap = dict(input="batch.video")
-model_omap = ["feature", "slotz", "attent", "attent2", "recon"]
+model_omap = ["feature", "slotz", "attenta", "recon", "attentd"]
 ckpt_map = []  # target<-source
 freez = [r"^m\.encode_backbone\..*"]
 
@@ -225,7 +225,7 @@ loss_fn_t = loss_fn_v = dict(
 )
 _acc_dict_ = dict(
     # metric=...,
-    map=dict(input="output.segment2", target="batch.segment"),
+    map=dict(input="output.segment", target="batch.segment"),
     transform=dict(
         type=Lambda,
         ikeys=[["input", "target"]],
@@ -261,11 +261,11 @@ before_step = [
 after_forward = [
     dict(
         type=Lambda,
-        ikeys=[["output.attent2"]],  # (b,t,s,h,w) -> (b,t,h,w,s)
+        ikeys=[["output.attentd"]],  # (b,t,s,h,w) -> (b,t,h,w,s)
         func=lambda _: ptnf.one_hot(
             interpolat_argmax_attent(_.detach(), size=resolut0).long()
         ).bool(),
-        okeys=[["output.segment2"]],
+        okeys=[["output.segment"]],
     ),
 ]
 callback_t = [

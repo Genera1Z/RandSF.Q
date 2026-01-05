@@ -2,6 +2,7 @@
 Copyright (c) 2024 Genera1Z
 https://github.com/Genera1Z
 """
+
 from einops import rearrange
 import torch as pt
 import torch.nn as nn
@@ -59,22 +60,22 @@ class VideoSAUR(DINOSAUR):
 
         query = self.initializ(b if condit is None else condit[:, 0, :, :])  # (b,n,c)
         slotz = []
-        attent = []
+        attenta = []
         for i in range(t):
-            slotz_i, attent_i = self.aggregat(encode[:, i, :, :], query)
+            slotz_i, attenta_i = self.aggregat(encode[:, i, :, :], query)
             query = self.transit(slotz_i)
             slotz.append(slotz_i)  # [(b,n,c),..]
-            attent.append(attent_i)  # [(b,n,h*w),..]
+            attenta.append(attenta_i)  # [(b,n,h*w),..]
         slotz = pt.stack(slotz, 1)  # (b,t,n,c)
-        attent = pt.stack(attent, 1)  # (b,t,n,h*w)
-        attent = rearrange(attent, "b t n (h w) -> b t n h w", h=h)
+        attenta = pt.stack(attenta, 1)  # (b,t,n,h*w)
+        attenta = rearrange(attenta, "b t n (h w) -> b t n h w", h=h)
 
         clue = [h, w]
-        recon, attent2 = self.decode(clue, slotz.flatten(0, 1))  # (b*t,h*w,c)
+        recon, attentd = self.decode(clue, slotz.flatten(0, 1))  # (b*t,h*w,c)
         recon = rearrange(recon, "(b t) (h w) c -> b t c h w", b=b, h=h)
-        attent2 = rearrange(attent2, "(b t) n (h w) -> b t n h w", b=b, h=h)
+        attentd = rearrange(attentd, "(b t) n (h w) -> b t n h w", b=b, h=h)
 
-        return feature, slotz, attent, attent2, recon
+        return feature, slotz, attenta, recon, attentd
 
     # segment acc: attent > attent2
 
