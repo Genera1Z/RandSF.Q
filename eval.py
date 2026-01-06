@@ -159,94 +159,111 @@ def main(args):
         cfg, dataload_v, model, loss_fn_v, acc_fn_v, callback_v, is_viz, is_img
     )
 
+    return pack2.log_info
+
 
 def main_eval_multi(args):
     cfg_files = [
-        "config-randsfq/randsfq_c-movi_c.py",
-        "config-randsfq/randsfq_c-movi_d.py",
-        "config-randsfq/randsfq_r-ytvis.py",
-        "config-randsfq-tsim/randsfq_c-movi_c.py",
-        "config-randsfq-tsim/randsfq_c-movi_d.py",
-        "config-randsfq-tsim/randsfq_r-ytvis.py",
-        "config-slotcontrast/slotcontrast_c-movi_c.py",
-        "config-slotcontrast/slotcontrast_c-movi_d.py",
-        "config-slotcontrast/slotcontrast_r-ytvis.py",
-        "config-videosaur/videosaur_c-movi_c.py",
-        "config-videosaur/videosaur_c-movi_d.py",
-        "config-videosaur/videosaur_r-ytvis.py",
+        # "config-randsfq/randsfq_c-movi_c.py",
+        # "config-randsfq/randsfq_c-movi_d.py",
+        # "config-randsfq/randsfq_r-ytvis.py",
+        # "config-randsfq-tsim/randsfq_c-movi_c.py",
+        # "config-randsfq-tsim/randsfq_c-movi_d.py",
+        # "config-randsfq-tsim/randsfq_r-ytvis.py",
+        # "config-slotcontrast/slotcontrast_c-movi_c.py",
+        # "config-slotcontrast/slotcontrast_c-movi_d.py",
+        # "config-slotcontrast/slotcontrast_r-ytvis.py",
+        # "config-videosaur/videosaur_c-movi_c.py",
+        # "config-videosaur/videosaur_c-movi_d.py",
+        # "config-videosaur/videosaur_r-ytvis.py",
+        #
+        "config-randsfq-tsim/randsfq_r_recogn-ytvis.py",
+        "config-slotcontrast/slotcontrast_r_recogn-ytvis.py",
     ]
     ckpt_files = [
+        # [
+        #     "archive-randsfq/randsfq_c-movi_c/42-0034.pth",
+        #     "archive-randsfq/randsfq_c-movi_c/43-0036.pth",
+        #     "archive-randsfq/randsfq_c-movi_c/44-0029.pth",
+        # ],
+        # [
+        #     "archive-randsfq/randsfq_c-movi_d/42-0036.pth",
+        #     "archive-randsfq/randsfq_c-movi_d/43-0025.pth",
+        #     "archive-randsfq/randsfq_c-movi_d/44-0025.pth",
+        # ],
+        # [
+        #     "archive-randsfq/randsfq_r-ytvis/42-0120.pth",
+        #     "archive-randsfq/randsfq_r-ytvis/43-0146.pth",
+        #     "archive-randsfq/randsfq_r-ytvis/44-0120.pth",
+        # ],
+        # [
+        #     "archive-randsfq-tsim/randsfq_c-movi_c/42-0031.pth",
+        #     "archive-randsfq-tsim/randsfq_c-movi_c/43-0029.pth",
+        #     "archive-randsfq-tsim/randsfq_c-movi_c/44-0032.pth",
+        # ],
+        # [
+        #     "archive-randsfq-tsim/randsfq_c-movi_d/42-0032.pth",
+        #     "archive-randsfq-tsim/randsfq_c-movi_d/43-0028.pth",
+        #     "archive-randsfq-tsim/randsfq_c-movi_d/44-0025.pth",
+        # ],
+        # [
+        #     "archive-randsfq-tsim/randsfq_r-ytvis/42-0155.pth",
+        #     "archive-randsfq-tsim/randsfq_r-ytvis/43-0120.pth",
+        #     "archive-randsfq-tsim/randsfq_r-ytvis/44-0172.pth",
+        # ],
+        # [
+        #     "archive-slotcontrast/slotcontrast_c-movi_c/42-0034.pth",
+        #     "archive-slotcontrast/slotcontrast_c-movi_c/43-0032.pth",
+        #     "archive-slotcontrast/slotcontrast_c-movi_c/44-0033.pth",
+        # ],
+        # [
+        #     "archive-slotcontrast/slotcontrast_c-movi_d/42-0030.pth",
+        #     "archive-slotcontrast/slotcontrast_c-movi_d/43-0032.pth",
+        #     "archive-slotcontrast/slotcontrast_c-movi_d/44-0028.pth",
+        # ],
+        # [
+        #     "archive-slotcontrast/slotcontrast_r-ytvis/42-0155.pth",
+        #     "archive-slotcontrast/slotcontrast_r-ytvis/43-0155.pth",
+        #     "archive-slotcontrast/slotcontrast_r-ytvis/44-0172.pth",
+        # ],
+        # [
+        #     "archive-videosaur/videosaur_c-movi_c/42-0034.pth",
+        #     "archive-videosaur/videosaur_c-movi_c/43-0041.pth",
+        #     "archive-videosaur/videosaur_c-movi_c/44-0028.pth",
+        # ],
+        # [
+        #     "archive-videosaur/videosaur_c-movi_d/42-0025.pth",
+        #     "archive-videosaur/videosaur_c-movi_d/43-0029.pth",
+        #     "archive-videosaur/videosaur_c-movi_d/44-0025.pth",
+        # ],
+        # [
+        #     "archive-videosaur/videosaur_r-ytvis/42-0112.pth",
+        #     "archive-videosaur/videosaur_r-ytvis/43-0155.pth",
+        #     "archive-videosaur/videosaur_r-ytvis/44-0120.pth",
+        # ],
         [
-            "archive-randsfq/randsfq_c-movi_c/42-0034.pth",
-            "archive-randsfq/randsfq_c-movi_c/43-0036.pth",
-            "archive-randsfq/randsfq_c-movi_c/44-0029.pth",
+            "archive-recogn/randsfq_r_recogn-ytvis/42-0011.pth",
+            "archive-recogn/randsfq_r_recogn-ytvis/43-0010.pth",
+            "archive-recogn/randsfq_r_recogn-ytvis/44-0015.pth",
         ],
         [
-            "archive-randsfq/randsfq_c-movi_d/42-0036.pth",
-            "archive-randsfq/randsfq_c-movi_d/43-0025.pth",
-            "archive-randsfq/randsfq_c-movi_d/44-0025.pth",
-        ],
-        [
-            "archive-randsfq/randsfq_r-ytvis/42-0120.pth",
-            "archive-randsfq/randsfq_r-ytvis/43-0146.pth",
-            "archive-randsfq/randsfq_r-ytvis/44-0120.pth",
-        ],
-        [
-            "archive-randsfq-tsim/randsfq_c-movi_c/42-0031.pth",
-            "archive-randsfq-tsim/randsfq_c-movi_c/43-0029.pth",
-            "archive-randsfq-tsim/randsfq_c-movi_c/44-0032.pth",
-        ],
-        [
-            "archive-randsfq-tsim/randsfq_c-movi_d/42-0032.pth",
-            "archive-randsfq-tsim/randsfq_c-movi_d/43-0028.pth",
-            "archive-randsfq-tsim/randsfq_c-movi_d/44-0025.pth",
-        ],
-        [
-            "archive-randsfq-tsim/randsfq_r-ytvis/42-0155.pth",
-            "archive-randsfq-tsim/randsfq_r-ytvis/43-0120.pth",
-            "archive-randsfq-tsim/randsfq_r-ytvis/44-0172.pth",
-        ],
-        [
-            "archive-slotcontrast/slotcontrast_c-movi_c/42-0034.pth",
-            "archive-slotcontrast/slotcontrast_c-movi_c/43-0032.pth",
-            "archive-slotcontrast/slotcontrast_c-movi_c/44-0033.pth",
-        ],
-        [
-            "archive-slotcontrast/slotcontrast_c-movi_d/42-0030.pth",
-            "archive-slotcontrast/slotcontrast_c-movi_d/43-0032.pth",
-            "archive-slotcontrast/slotcontrast_c-movi_d/44-0028.pth",
-        ],
-        [
-            "archive-slotcontrast/slotcontrast_r-ytvis/42-0155.pth",
-            "archive-slotcontrast/slotcontrast_r-ytvis/43-0155.pth",
-            "archive-slotcontrast/slotcontrast_r-ytvis/44-0172.pth",
-        ],
-        [
-            "archive-videosaur/videosaur_c-movi_c/42-0034.pth",
-            "archive-videosaur/videosaur_c-movi_c/43-0041.pth",
-            "archive-videosaur/videosaur_c-movi_c/44-0028.pth",
-        ],
-        [
-            "archive-videosaur/videosaur_c-movi_d/42-0025.pth",
-            "archive-videosaur/videosaur_c-movi_d/43-0029.pth",
-            "archive-videosaur/videosaur_c-movi_d/44-0025.pth",
-        ],
-        [
-            "archive-videosaur/videosaur_r-ytvis/42-0112.pth",
-            "archive-videosaur/videosaur_r-ytvis/43-0155.pth",
-            "archive-videosaur/videosaur_r-ytvis/44-0120.pth",
+            "archive-recogn/slotcontrast_r_recogn-ytvis/42-0011.pth",
+            "archive-recogn/slotcontrast_r_recogn-ytvis/43-0012.pth",
+            "archive-recogn/slotcontrast_r_recogn-ytvis/44-0014.pth",
         ],
     ]
+    ckpt_base_dir = Path("/media/GeneralZ/Storage/Active/0_ckpt_randsfq_github")
 
     assert len(cfg_files) == len(ckpt_files)
 
     log_file = Path("eval_multi.csv")
     log_file.touch()
-    keys = ("ari", "ari_fg", "mbo", "miou")
+    # keys = ("ari", "ari_fg", "mbo", "miou")
+    keys = ("top1", "top3", "iou", "num")
     for cfgf, ckptfs in zip(cfg_files, ckpt_files):
         cfgf = Path(cfgf)
         for ckptf in ckptfs:
-            ckptf = Path(ckptf)
+            ckptf = ckpt_base_dir / ckptf
             cname = ckptf.parent.name
             assert cname == cfgf.name[:-3]
             seed = int(ckptf.name.split("-")[0])

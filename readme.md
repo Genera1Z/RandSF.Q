@@ -26,39 +26,17 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 
 ## 🏆 Performance
 
-### (1) ⭐⭐⭐ Re-evaluated Performance Values @ Version 3 ⭐⭐⭐
-
-**Object discovery**:
-
-|                       |    ari    |   arifg   |    mbo   |   miou   |
-|-----------------------|:---------:|:---------:|:--------:|:--------:|
-| randsfq_c-movi_c      | 65.4±10.7 |  67.4±2.1 | 29.2±3.8 | 26.8±3.7 |
-| randsfq_c-movi_d      |  41.6±3.7 |  77.5±1.0 | 27.4±1.0 | 25.6±1.0 |
-| randsfq_r-ytvis       |  40.1±0.4 |  58.0±1.0 | 37.6±0.4 | 37.2±0.4 |
-| randsfq_c-movi_c-tsim |  64.0±2.9 |  66.3±1.7 | 28.4±1.3 | 26.1±1.1 |
-| randsfq_c-movi_d-tsim |  41.2±2.2 |  72.0±1.1 | 27.1±0.9 | 25.4±0.9 |
-| randsfq_r-ytvis-tsim  |  46.0±0.7 |  60.4±2.3 | 39.4±0.3 | 38.5±0.2 |
-| slotcontrast_c-movi_c |  64.6±9.4 |  59.9±5.3 | 27.7±3.0 | 25.8±2.9 |
-| slotcontrast_c-movi_d |  45.3±4.1 |  63.9±0.2 | 26.7±1.0 | 25.1±1.0 |
-| slotcontrast_r-ytvis  |  37.2±0.6 |  49.4±1.1 | 33.0±0.2 | 32.8±0.1 |
-| videosaur_c-movi_c    |  41.9±1.1 |  53.3±2.1 | 16.1±0.4 | 14.8±0.4 |
-| videosaur_c-movi_d    |  22.5±5.0 | 40.0±20.1 | 11.6±6.6 | 10.8±6.1 |
-| videosaur_r-ytvis     |  33.8±0.7 |  49.2±0.5 | 29.9±0.4 | 29.7±0.4 |
-
-**Object recognition**:
-|                             | class top1 | class top3 | bbox iou | #match |
-|----------------------------:|:----------:|:----------:|:--------:|:-----------:|
-|      randsfq_r_recogn-ytvis |  26.1±1.3  |  60.9±3.2  | 54.5±0.6 |   7579±201  |
-| slotcontrast_r_recogn-ytvis |  19.9±2.0  |  49.1±3.1  | 53.5±0.2 |   9259±26   |
-
-
-### (2) All Performance Values Together
-
 **Object discovery accuracy**:
+
 <img src="res/acc_obj_discov.png" style="width:100%">
 
 **Object discovery visualization**:
+
 <img src="res/qualitative.png" style="width:100%;">
+
+**Object recognition accuracy**:
+
+<img src="res/acc_obj_recogn.png" style="width:45%">
 
 
 
@@ -160,7 +138,8 @@ python eval.py \
     --cfg_file config-randsfq/randsfq_r-ytvis.py \
     --data_dir path/to/your/dataset \
     --ckpt_file archive-randsfq/randsfq_r-ytvis/best.pth \
-    --is_viz True
+    --is_viz True \
+    --is_img False
 # object discovery accuracy values will be printed in the terminal
 # object discovery visualization will be saved to ./randsfq_r-ytvis/
 ```
