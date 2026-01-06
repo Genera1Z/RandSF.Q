@@ -36,7 +36,7 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 
 **Object recognition accuracy**:
 
-<img src="res/acc_obj_recogn.png" style="width:45%">
+<img src="res/acc_obj_recogn.png" style="width:48%">
 
 
 
