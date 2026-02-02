@@ -109,7 +109,7 @@ Datasets MOVi-C, MOVi-D and YTVIS, which are converted into LMDB format and can 
 
 ## 🔥 How to Use
 
-Take RandSF.Q on COCO as an example.
+Take RandSF.Q on YTVIS as an example.
 
 **(1) Environment**
 
