@@ -3,7 +3,7 @@
 
 
 [![](https://img.shields.io/badge/arXiv-2508.01345-red)](https://arxiv.org/abs/2508.01345)
-[![](https://img.shields.io/badge/explain-s-poster-yellow)](poster.pdf)
+[![](https://img.shields.io/badge/explain-poster-yellow)](poster.pdf)
 [![](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![](https://img.shields.io/badge/model-checkpoints-blue)](https://github.com/Genera1Z/RandSF.Q?tab=readme-ov-file#-model-checkpoints--training-logs)
 [![](https://img.shields.io/badge/training-logs-purple)](https://github.com/Genera1Z/RandSF.Q?tab=readme-ov-file#-model-checkpoints--training-logs)
