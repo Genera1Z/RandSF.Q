@@ -277,5 +277,4 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    # with pt.autograd.detect_anomaly(True):  # detect NaN
     main(parse_args())
