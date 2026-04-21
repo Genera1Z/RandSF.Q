@@ -98,9 +98,9 @@ Datasets MOVi-C, MOVi-D and YTVIS, which are converted into LMDB format and can 
     - My implementation of paper **Object-Centric Learning for Real-World Videos by Predicting Temporal Feature Similarities**, NeurIPS 2023.
 - [archive-slotcontrast](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-slotcontrast): SlotContrast on MOVi-C/D/E and YTVIS-HQ, YTVIS-2022.
     - My implementation of paper **Temporally Consistent Object-Centric Learning by Contrasting Slots**, CVPR 2025 Oral.
-- [archive-randsfq](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq): RandSF.Q on MOVi-C/D/E and YTVIS-HQ/YTVIS-2022.
+- [archive-randsfq](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq): RandSF.Q on MOVi-C/D/E and YTVIS-HQ, YTVIS-2022.
     - Our proposed method RandSF.Q, which is built upon SlotContrast.
-- [archive-randsfq-tsim](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq-tsim): RandSF.Q, with time similarity loss, on MOVi-C/D/E and YTVIS-HQ/YTVIS-2022.
+- [archive-randsfq-tsim](https://github.com/Genera1Z/RandSF.Q/releases/tag/archive-randsfq-tsim): RandSF.Q, with time similarity loss, on MOVi-C/D/E and YTVIS-HQ, YTVIS-2022.
     - Our proposed method RandSF.Q, which is built upon SlotContrast but using time similarity loss.
 - [slatesteve](https://github.com/Genera1Z/VQ-VFM-OCL/releases/tag/slatesteve): STEVE on MOVi-D.
     - My implementation of paper **Simple Unsupervised Object-Centric Learning for Complex and Naturalistic Videos**, NeurIPS 2022, achieving much better performance.
