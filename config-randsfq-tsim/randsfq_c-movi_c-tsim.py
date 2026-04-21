@@ -19,7 +19,8 @@ from object_centric_bench.learn import (
     GradScaler,
     ClipGradNorm,
     MSELoss,
-    SlotContrastLoss,
+    CrossEntropyLoss,
+    FeatureTimeSimilarity,
     mBO,
     ARI,
     mIoU,
@@ -188,7 +189,11 @@ model = dict(
             ),
             num_layers=4,
         ),
-        readout=dict(type=Identity),
+        readout=dict(
+            type=Linear,
+            in_features=vfm_dim,
+            out_features=vfm_dim + resolut1[0] * resolut1[1],
+        ),
     ),
 )
 model_imap = dict(input="batch.video", condit="batch.bbox")
@@ -207,12 +212,53 @@ loss_fn_t = loss_fn_v = dict(
     recon=dict(
         metric=dict(type=MSELoss),
         map=dict(input="output.recon", target="output.feature"),
-        transform=dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+        transform=dict(
+            type=Compose,
+            transforms=[
+                dict(
+                    type=Lambda,
+                    ikeys=[["input"]],  # (b,t,c,h,w)
+                    func=lambda _: _[:, :, :vfm_dim, :, :],
+                ),
+                dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+            ],
+        ),
     ),
-    ssc=dict(
-        metric=dict(type=SlotContrastLoss),
-        map=dict(input="output.slotz"),
-        weight=0.5,
+    tsim=dict(
+        metric=dict(type=CrossEntropyLoss),
+        map=dict(input="output.recon", target="output.feature"),
+        transform=dict(
+            type=Compose,
+            transforms=[
+                dict(
+                    type=Lambda,
+                    ikeys=[["input"]],  # remove last frame + slice prediction
+                    func=lambda _: _[:, :-1, vfm_dim:, :, :],
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["input", "target"]],
+                    func=lambda _: rearrange(_, "b t c h w -> b t (h w) c"),
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["target"]],
+                    func=dict(
+                        type=FeatureTimeSimilarity,
+                        time_shift=1,
+                        thresh=None,
+                        tau=1.0,
+                        softmax=True,
+                    ),
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["input", "target"]],  # c==hw
+                    func=lambda _: rearrange(_, "b t hw c -> (b t) c hw"),
+                ),
+            ],
+        ),
+        weight=0.1,
     ),
 )
 _acc_dict_ = dict(

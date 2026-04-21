@@ -70,7 +70,7 @@ transform_v = [
 ]
 dataset_t = dict(
     type=YTVIS,
-    data_file="ytvis_2022/train.lmdb",
+    data_file="ytvis_hq/train.lmdb",
     extra_keys=["segment", "bbox", "clazz"],
     transform0=dict(
         type=StridedRandomSliceSequence, keys=["video", "segment", "clazz"], size=5
@@ -81,7 +81,7 @@ dataset_t = dict(
 )
 dataset_v = dict(
     type=YTVIS,
-    data_file="ytvis_2022/val.lmdb",
+    data_file="ytvis_hq/val.lmdb",
     extra_keys=["segment", "bbox", "clazz"],
     transform=dict(type=Compose, transforms=transform_v),
     base_dir=...,

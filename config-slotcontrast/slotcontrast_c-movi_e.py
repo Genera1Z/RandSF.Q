@@ -29,30 +29,26 @@ from object_centric_bench.learn import (
     SaveModel,
 )
 from object_centric_bench.model import (
-    RandSFQ,
+    VideoSAUR,
     Sequential,
     Interpolate,
     DINO2ViT,
     Identity,
     MLP,
     SlotAttention,
-    RSFQTransit,
-    ARRandTransformerDecoder,
     LearntPositionalEmbedding,
-    Linear,
-    LayerNorm,
-    TransformerDecoder,
-    TransformerDecoderLayer,
+    TransformerEncoderLayer,
+    BroadcastMLPDecoder,
 )
 from object_centric_bench.util import Compose, ComposeNoStar
 from object_centric_bench.util_model import interpolat_argmax_attent
 
 ### global
 
-max_num = 10 + 1
+max_num = 23 + 1
 resolut0 = [256, 256]
 resolut1 = [16, 16]
-emb_dim = 256
+emb_dim = 64
 vfm_dim = 384
 
 total_step = 50000  # 100000 better
@@ -82,7 +78,7 @@ transform_v = [
 ]
 dataset_t = dict(
     type=MOVi,
-    data_file="movi_c/train.lmdb",
+    data_file="movi_e/train.lmdb",
     extra_keys=["segment", "bbox"],
     transform0=dict(type=StridedRandomSliceSequence, keys=["video", "segment"], size=6),
     transform=dict(type=Compose, transforms=transform_t),
@@ -90,7 +86,7 @@ dataset_t = dict(
 )
 dataset_v = dict(
     type=MOVi,
-    data_file="movi_c/val.lmdb",
+    data_file="movi_e/val.lmdb",
     extra_keys=["segment", "bbox"],
     transform=dict(type=Compose, transforms=transform_v),
     base_dir=...,
@@ -108,87 +104,58 @@ collate_fn_v = collate_fn_t
 ### model
 
 model = dict(
-    type=RandSFQ,
+    type=VideoSAUR,
     encode_backbone=dict(
         type=Sequential,
         modules=[
             dict(type=Interpolate, scale_factor=0.875, interp="bicubic"),
             dict(
                 type=DINO2ViT,
-                model_name="vit_small_patch14_reg4_dinov2.lvd142m",
+                model_name="vit_small_patch14_dinov2.lvd142m",
                 in_size=int(resolut0[0] * 0.875),
                 rearrange=True,
-                norm_out=False,
+                norm_out=True,
             ),
         ],
     ),
     encode_posit_embed=dict(type=Identity),
     encode_project=dict(
-        type=MLP, in_dim=vfm_dim, dims=[vfm_dim, vfm_dim], ln="pre", dropout=0.0
+        type=MLP, in_dim=vfm_dim, dims=[vfm_dim * 2, emb_dim], ln="pre", dropout=0.0
     ),
     initializ=dict(type=MLP, in_dim=4, dims=[emb_dim] * 2),
     aggregat=dict(
         type=SlotAttention,
-        num_iter=3,  # 3 > 2, 1
+        num_iter=3,
         embed_dim=emb_dim,
         ffn_dim=emb_dim * 4,
         dropout=0,
-        kv_dim=vfm_dim,
-        trunc_bp=None,  # > bi-level
+        trunc_bp="bi-level",  # >None
     ),
     transit=dict(
-        type=RSFQTransit,
-        dt=6,  # XXX XXX XXX  # 6 > 5, 4
-        ci=vfm_dim,
-        c=emb_dim,
+        type=TransformerEncoderLayer,
+        d_model=emb_dim,
         nhead=4,
-        expanz=4,
-        pdo=0.5,  # XXX XXX XXX
+        dim_feedforward=emb_dim * 4,
+        dropout=0.1,
+        activation="gelu",
+        batch_first=True,
         norm_first=False,
         bias=False,
     ),
     decode=dict(
-        type=ARRandTransformerDecoder,
-        emb_dim=vfm_dim,
+        type=BroadcastMLPDecoder,
         posit_embed=dict(
             type=LearntPositionalEmbedding,
             resolut=[resolut1[0] * resolut1[1]],
-            embed_dim=vfm_dim,
-        ),
-        project1=dict(  # fc>fc+ln
-            type=Sequential,
-            modules=[
-                dict(
-                    type=Linear, in_features=vfm_dim, out_features=vfm_dim, bias=False
-                ),
-                dict(type=LayerNorm, normalized_shape=vfm_dim),
-            ],
-        ),
-        project2=dict(  # fc+ln>fc
-            type=Sequential,
-            modules=[
-                dict(
-                    type=Linear, in_features=emb_dim, out_features=vfm_dim, bias=False
-                ),
-                dict(type=LayerNorm, normalized_shape=vfm_dim),
-            ],
+            embed_dim=emb_dim,
         ),
         backbone=dict(
-            type=TransformerDecoder,
-            decoder_layer=dict(
-                type=TransformerDecoderLayer,
-                d_model=vfm_dim,
-                nhead=4,  # 4@384, 6@768
-                dim_feedforward=vfm_dim * 4,
-                dropout=0.0,
-                activation="gelu",
-                batch_first=True,
-                norm_first=True,
-                bias=False,
-            ),
-            num_layers=4,
+            type=MLP,
+            in_dim=emb_dim,
+            dims=[2048] * 3 + [vfm_dim + 1],  # 2048>1024
+            ln=None,
+            dropout=0,
         ),
-        readout=dict(type=Identity),
     ),
 )
 model_imap = dict(input="batch.video", condit="batch.bbox")
@@ -207,7 +174,17 @@ loss_fn_t = loss_fn_v = dict(
     recon=dict(
         metric=dict(type=MSELoss),
         map=dict(input="output.recon", target="output.feature"),
-        transform=dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+        transform=dict(
+            type=Compose,
+            transforms=[
+                dict(
+                    type=Lambda,
+                    ikeys=[["input"]],  # (b,t,c,h,w)
+                    func=lambda _: _[:, :, :vfm_dim, :, :],
+                ),
+                dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+            ],
+        ),
     ),
     ssc=dict(
         metric=dict(type=SlotContrastLoss),

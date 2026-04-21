@@ -26,7 +26,6 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 ## 🏆 Performance
 
 **Object discovery accuracy**: (Input resolution is **256×256** (224×224); **DINO2 ViT-S/14** is used for encoding)
-Which are detailed in [acc-v3.xlsx](acc-v3.xlsx).
 
 <img src="res/acc_obj_discov.png" style="width:100%">
 
@@ -35,7 +34,6 @@ Which are detailed in [acc-v3.xlsx](acc-v3.xlsx).
 <img src="res/qualitative.png" style="width:100%;">
 
 **Object recognition accuracy**:
-Which are detailed in [acc-recogn-v3.xlsx](acc-recogn-v3.xlsx).
 
 <img src="res/acc_obj_recogn.png" style="width:48%">
 

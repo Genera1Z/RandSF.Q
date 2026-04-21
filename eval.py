@@ -5,6 +5,7 @@ https://github.com/Genera1Z
 
 from argparse import ArgumentParser
 from pathlib import Path
+import pickle as pkl
 
 import cv2
 import numpy as np
@@ -20,7 +21,15 @@ from object_centric_bench.util import Config, build_from_config
 
 @pt.inference_mode()
 def val_epoch(
-    cfg, dataset_v, model, loss_fn_v, acc_fn_v, callback_v, is_viz=False, is_img=False
+    cfg,
+    dataset_v,
+    model,
+    loss_fn_v,
+    acc_fn_v,
+    callback_v,
+    is_viz=False,
+    is_img=False,
+    dump_log=False,
 ):
     pack = Config({})
     pack.dataset_v = dataset_v
@@ -36,12 +45,12 @@ def val_epoch(
     std = pt.from_numpy(np.array(cfg.IMAGENET_STD, "float32"))
     cnt = 0
 
-    pack.isval = True
     pack.model.eval()
+    pack.isval = True
     [_.before_epoch(**pack) for _ in pack.callback_v]
 
     for i, batch in enumerate(tqdm.tqdm(pack.dataset_v)):
-        pack.batch = {k: v.cuda() for k, v in batch.items()}
+        pack.batch = batch
 
         [_.before_step(**pack) for _ in pack.callback_v]
 
@@ -90,33 +99,34 @@ def val_epoch(
     [_.after_epoch(**pack) for _ in pack.callback_v]
 
     for cb in pack.callback_v:
+        flag_log = False
         if cb.__class__.__name__ == "AverageLog":
+            flag_log = True
             pack2.log_info = cb.mean()
-            break
         elif cb.__class__.__name__ == "HandleLog":
+            flag_log = True
             pack2.log_info = cb.handle()
+        if flag_log:
+            if dump_log:
+                with open(f"{cfg.name}.pkl", "wb") as f:
+                    pkl.dump(cb.state_dict, f)
             break
 
     return pack2
 
 
 def main(args):
-    cfg_file = Path(args.cfg_file)
-    data_path = Path(args.data_dir)
-    ckpt_file = Path(args.ckpt_file)
-    is_viz = args.is_viz
-    is_img = args.is_img
     pt.backends.cudnn.benchmark = True
 
-    assert cfg_file.name.endswith(".py")
-    assert cfg_file.is_file()
-    cfg_name = cfg_file.name.split(".")[0]
-    cfg = Config.fromfile(cfg_file)
+    assert args.cfg_file.name.endswith(".py")
+    assert args.cfg_file.is_file()
+    cfg_name = args.cfg_file.name.split(".")[0]
+    cfg = Config.fromfile(args.cfg_file)
     cfg.name = cfg_name
 
     ## datum init
 
-    cfg.dataset_t.base_dir = cfg.dataset_v.base_dir = data_path
+    cfg.dataset_t.base_dir = cfg.dataset_v.base_dir = args.data_dir
 
     dataset_v = build_from_config(cfg.dataset_v)
     dataload_v = DataLoader(
@@ -134,8 +144,8 @@ def main(args):
     # print(model)
     model = ModelWrap(model, cfg.model_imap, cfg.model_omap)
 
-    if ckpt_file:
-        model.load(ckpt_file, None, verbose=False)
+    if args.ckpt_file:
+        model.load(args.ckpt_file, None, verbose=False)
     if cfg.freez:
         model.freez(cfg.freez, verbose=False)
 
@@ -156,7 +166,15 @@ def main(args):
     ## do eval
 
     pack2 = val_epoch(
-        cfg, dataload_v, model, loss_fn_v, acc_fn_v, callback_v, is_viz, is_img
+        cfg,
+        dataload_v,
+        model,
+        loss_fn_v,
+        acc_fn_v,
+        callback_v,
+        args.is_viz,
+        args.is_img,
+        args.dump_log,
     )
 
     return pack2.log_info
@@ -165,20 +183,24 @@ def main(args):
 def main_eval_multi(args):
     cfg_files = [
         # "config-randsfq/randsfq_c-movi_c.py",
-        # "config-randsfq/randsfq_c-movi_d.py",
+        # "config-randsfq/randsfq_c-movi_e.py",
         # "config-randsfq/randsfq_r-ytvis.py",
-        # "config-randsfq-tsim/randsfq_c-movi_c.py",
-        # "config-randsfq-tsim/randsfq_c-movi_d.py",
-        # "config-randsfq-tsim/randsfq_r-ytvis.py",
+        # "config-randsfq/randsfq_r-ytvis_hq.py",
+        # "config-randsfq-tsim/randsfq_c-movi_c-tsim.py",
+        # "config-randsfq-tsim/randsfq_c-movi_e-tsim.py",
+        "config-randsfq-tsim/randsfq_r-ytvis-tsim.py",
+        # "config-randsfq-tsim/randsfq_r-ytvis_hq-tsim.py",
         # "config-slotcontrast/slotcontrast_c-movi_c.py",
-        # "config-slotcontrast/slotcontrast_c-movi_d.py",
-        # "config-slotcontrast/slotcontrast_r-ytvis.py",
+        # "config-slotcontrast/slotcontrast_c-movi_e.py",
+        "config-slotcontrast/slotcontrast_r-ytvis.py",
+        # "config-slotcontrast/slotcontrast_r-ytvis_hq.py",
         # "config-videosaur/videosaur_c-movi_c.py",
-        # "config-videosaur/videosaur_c-movi_d.py",
-        # "config-videosaur/videosaur_r-ytvis.py",
+        # "config-videosaur/videosaur_c-movi_e.py",
+        "config-videosaur/videosaur_r-ytvis.py",
+        # "config-videosaur/videosaur_r-ytvis_hq.py",
         #
-        "config-randsfq-tsim/randsfq_r_recogn-ytvis.py",
-        "config-slotcontrast/slotcontrast_r_recogn-ytvis.py",
+        # "config-randsfq/randsfq_r_recogn-ytvis_hq.py",
+        # "config-slotcontrast/slotcontrast_r_recogn-ytvis_hq.py",
     ]
     ckpt_files = [
         # [
@@ -187,14 +209,19 @@ def main_eval_multi(args):
         #     "archive-randsfq/randsfq_c-movi_c/44-0029.pth",
         # ],
         # [
-        #     "archive-randsfq/randsfq_c-movi_d/42-0036.pth",
-        #     "archive-randsfq/randsfq_c-movi_d/43-0025.pth",
-        #     "archive-randsfq/randsfq_c-movi_d/44-0025.pth",
+        #     "archive-randsfq/randsfq_c-movi_e/42-0037.pth",
+        #     "archive-randsfq/randsfq_c-movi_e/43-0035.pth",
+        #     "archive-randsfq/randsfq_c-movi_e/44-0032.pth",
         # ],
         # [
-        #     "archive-randsfq/randsfq_r-ytvis/42-0120.pth",
-        #     "archive-randsfq/randsfq_r-ytvis/43-0146.pth",
-        #     "archive-randsfq/randsfq_r-ytvis/44-0120.pth",
+        #     "archive-randsfq/randsfq_r-ytvis/42-0121.pth",
+        #     "archive-randsfq/randsfq_r-ytvis/43-0117.pth",
+        #     "archive-randsfq/randsfq_r-ytvis/44-0124.pth",
+        # ],
+        # [
+        #     "archive-randsfq/randsfq_r-ytvis_hq/42-0120.pth",
+        #     "archive-randsfq/randsfq_r-ytvis_hq/43-0146.pth",
+        #     "archive-randsfq/randsfq_r-ytvis_hq/44-0120.pth",
         # ],
         # [
         #     "archive-randsfq-tsim/randsfq_c-movi_c/42-0031.pth",
@@ -202,14 +229,19 @@ def main_eval_multi(args):
         #     "archive-randsfq-tsim/randsfq_c-movi_c/44-0032.pth",
         # ],
         # [
-        #     "archive-randsfq-tsim/randsfq_c-movi_d/42-0032.pth",
-        #     "archive-randsfq-tsim/randsfq_c-movi_d/43-0028.pth",
-        #     "archive-randsfq-tsim/randsfq_c-movi_d/44-0025.pth",
+        #     "archive-randsfq-tsim/randsfq_c-movi_e/42-0041.pth",
+        #     "archive-randsfq-tsim/randsfq_c-movi_e/43-0030.pth",
+        #     "archive-randsfq-tsim/randsfq_c-movi_e/44-0030.pth",
         # ],
+        [
+            "archive-randsfq-tsim/randsfq_r-ytvis-tsim/42-0111.pth",
+            "archive-randsfq-tsim/randsfq_r-ytvis-tsim/43-0085.pth",
+            "archive-randsfq-tsim/randsfq_r-ytvis-tsim/44-0088.pth",
+        ],
         # [
-        #     "archive-randsfq-tsim/randsfq_r-ytvis/42-0155.pth",
-        #     "archive-randsfq-tsim/randsfq_r-ytvis/43-0120.pth",
-        #     "archive-randsfq-tsim/randsfq_r-ytvis/44-0172.pth",
+        #     "archive-randsfq-tsim/randsfq_r-ytvis_hq/42-0155.pth",
+        #     "archive-randsfq-tsim/randsfq_r-ytvis_hq/43-0120.pth",
+        #     "archive-randsfq-tsim/randsfq_r-ytvis_hq/44-0172.pth",
         # ],
         # [
         #     "archive-slotcontrast/slotcontrast_c-movi_c/42-0034.pth",
@@ -217,14 +249,19 @@ def main_eval_multi(args):
         #     "archive-slotcontrast/slotcontrast_c-movi_c/44-0033.pth",
         # ],
         # [
-        #     "archive-slotcontrast/slotcontrast_c-movi_d/42-0030.pth",
-        #     "archive-slotcontrast/slotcontrast_c-movi_d/43-0032.pth",
-        #     "archive-slotcontrast/slotcontrast_c-movi_d/44-0028.pth",
+        #     "archive-slotcontrast/slotcontrast_c-movi_e/42-0028.pth",
+        #     "archive-slotcontrast/slotcontrast_c-movi_e/43-0030.pth",
+        #     "archive-slotcontrast/slotcontrast_c-movi_e/44-0033.pth",
         # ],
+        [
+            "archive-slotcontrast/slotcontrast_r-ytvis/42-0111.pth",
+            "archive-slotcontrast/slotcontrast_r-ytvis/43-0101.pth",
+            "archive-slotcontrast/slotcontrast_r-ytvis/44-0130.pth",
+        ],
         # [
-        #     "archive-slotcontrast/slotcontrast_r-ytvis/42-0155.pth",
-        #     "archive-slotcontrast/slotcontrast_r-ytvis/43-0155.pth",
-        #     "archive-slotcontrast/slotcontrast_r-ytvis/44-0172.pth",
+        #     "archive-slotcontrast/slotcontrast_r-ytvis_hq/42-0155.pth",
+        #     "archive-slotcontrast/slotcontrast_r-ytvis_hq/43-0155.pth",
+        #     "archive-slotcontrast/slotcontrast_r-ytvis_hq/44-0172.pth",
         # ],
         # [
         #     "archive-videosaur/videosaur_c-movi_c/42-0034.pth",
@@ -232,25 +269,30 @@ def main_eval_multi(args):
         #     "archive-videosaur/videosaur_c-movi_c/44-0028.pth",
         # ],
         # [
-        #     "archive-videosaur/videosaur_c-movi_d/42-0025.pth",
-        #     "archive-videosaur/videosaur_c-movi_d/43-0029.pth",
-        #     "archive-videosaur/videosaur_c-movi_d/44-0025.pth",
+        #     "archive-videosaur/videosaur_c-movi_e/42-0025.pth",
+        #     "archive-videosaur/videosaur_c-movi_e/43-0027.pth",
+        #     "archive-videosaur/videosaur_c-movi_e/44-0026.pth",
+        # ],
+        [
+            "archive-videosaur/videosaur_r-ytvis/42-0091.pth",
+            "archive-videosaur/videosaur_r-ytvis/43-0104.pth",
+            "archive-videosaur/videosaur_r-ytvis/44-0104.pth",
+        ],
+        # [
+        #     "archive-videosaur/videosaur_r-ytvis_hq/42-0112.pth",
+        #     "archive-videosaur/videosaur_r-ytvis_hq/43-0155.pth",
+        #     "archive-videosaur/videosaur_r-ytvis_hq/44-0120.pth",
         # ],
         # [
-        #     "archive-videosaur/videosaur_r-ytvis/42-0112.pth",
-        #     "archive-videosaur/videosaur_r-ytvis/43-0155.pth",
-        #     "archive-videosaur/videosaur_r-ytvis/44-0120.pth",
+        #     "archive-recogn/randsfq_r_recogn-ytvis_hq/42-0023.pth",
+        #     "archive-recogn/randsfq_r_recogn-ytvis_hq/43-0022.pth",
+        #     "archive-recogn/randsfq_r_recogn-ytvis_hq/44-0022.pth",
         # ],
-        [
-            "archive-recogn/randsfq_r_recogn-ytvis/42-0011.pth",
-            "archive-recogn/randsfq_r_recogn-ytvis/43-0010.pth",
-            "archive-recogn/randsfq_r_recogn-ytvis/44-0015.pth",
-        ],
-        [
-            "archive-recogn/slotcontrast_r_recogn-ytvis/42-0011.pth",
-            "archive-recogn/slotcontrast_r_recogn-ytvis/43-0012.pth",
-            "archive-recogn/slotcontrast_r_recogn-ytvis/44-0014.pth",
-        ],
+        # [
+        #     "archive-recogn/slotcontrast_r_recogn-ytvis_hq/42-0022.pth",
+        #     "archive-recogn/slotcontrast_r_recogn-ytvis_hq/43-0020.pth",
+        #     "archive-recogn/slotcontrast_r_recogn-ytvis_hq/44-0020.pth",
+        # ],
     ]
     ckpt_base_dir = Path("/media/GeneralZ/Storage/Active/0_ckpt_randsfq_github")
 
@@ -258,8 +300,8 @@ def main_eval_multi(args):
 
     log_file = Path("eval_multi.csv")
     log_file.touch()
-    # keys = ("ari", "ari_fg", "mbo", "miou")
-    keys = ("top1", "top3", "iou", "num")
+    keys = ("ari", "ari_fg", "mbo", "miou")
+    # keys = ("top1", "top3", "iou", "num")
     for cfgf, ckptfs in zip(cfg_files, ckpt_files):
         cfgf = Path(cfgf)
         for ckptf in ckptfs:
@@ -283,15 +325,15 @@ def parse_args():
     parser = ArgumentParser()
     parser.add_argument(
         "--cfg_file",
-        type=str,  # TODO XXX
+        type=Path,  # TODO XXX
         default="config-smoothsa/smoothsa_r-coco.py",
     )
     parser.add_argument(  # TODO XXX
-        "--data_dir", type=str, default="/media/GeneralZ/Storage/Static/datasets"
+        "--data_dir", type=Path, default="/media/GeneralZ/Storage/Static/datasets"
     )
     parser.add_argument(
         "--ckpt_file",
-        type=str,  # TODO XXX
+        type=Path,  # TODO XXX
         default="archive-smoothsa/smoothsa_r-coco/42-0027.pth",
     )
     parser.add_argument(
@@ -301,6 +343,11 @@ def parse_args():
     )
     parser.add_argument(
         "--is_img",  # image or video
+        type=bool,  # TODO XXX
+        default=False,
+    )
+    parser.add_argument(
+        "--dump_log",
         type=bool,  # TODO XXX
         default=False,
     )

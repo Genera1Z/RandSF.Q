@@ -2,7 +2,7 @@ from einops import rearrange
 import torch.nn.functional as ptnf
 
 from object_centric_bench.datum import (
-    StridedRandomSlice1,
+    StridedRandomSliceSequence,
     RandomCrop,
     Resize,
     RandomFlip,
@@ -19,7 +19,8 @@ from object_centric_bench.learn import (
     GradScaler,
     ClipGradNorm,
     MSELoss,
-    SlotContrastLoss,
+    CrossEntropyLoss,
+    FeatureTimeSimilarity,
     mBO,
     ARI,
     mIoU,
@@ -49,7 +50,7 @@ from object_centric_bench.util_model import interpolat_argmax_attent
 
 ### global
 
-max_num = 20 + 1
+max_num = 23 + 1
 resolut0 = [256, 256]
 resolut1 = [16, 16]
 emb_dim = 256
@@ -67,8 +68,6 @@ lr = 2e-4 / 4  # scale with batch_size
 IMAGENET_MEAN = [[[123.675]], [[116.28]], [[103.53]]]
 IMAGENET_STD = [[[58.395]], [[57.12]], [[57.375]]]
 transform_t = [
-    # (t=24,c,h,w) (t,n,c=4) (t,h,w)
-    dict(type=StridedRandomSlice1, keys=["video", "segment"], dim=0, size=6),
     # the following 2 == RandomResizedCrop: better than max sized random crop
     dict(type=RandomCrop, keys=["video", "segment"], size=None, scale=[0.75, 1]),
     dict(type=Resize, keys=["video"], size=resolut0, interp="bilinear"),
@@ -84,14 +83,15 @@ transform_v = [
 ]
 dataset_t = dict(
     type=MOVi,
-    data_file="movi_d/train.lmdb",
+    data_file="movi_e/train.lmdb",
     extra_keys=["segment", "bbox"],
+    transform0=dict(type=StridedRandomSliceSequence, keys=["video", "segment"], size=6),
     transform=dict(type=Compose, transforms=transform_t),
     base_dir=...,
 )
 dataset_v = dict(
     type=MOVi,
-    data_file="movi_d/val.lmdb",
+    data_file="movi_e/val.lmdb",
     extra_keys=["segment", "bbox"],
     transform=dict(type=Compose, transforms=transform_v),
     base_dir=...,
@@ -150,7 +150,7 @@ model = dict(
     ),
     decode=dict(
         type=ARRandTransformerDecoder,
-        vfm_dim=vfm_dim,
+        emb_dim=vfm_dim,
         posit_embed=dict(
             type=LearntPositionalEmbedding,
             resolut=[resolut1[0] * resolut1[1]],
@@ -189,7 +189,11 @@ model = dict(
             ),
             num_layers=4,
         ),
-        readout=dict(type=Identity),
+        readout=dict(
+            type=Linear,
+            in_features=vfm_dim,
+            out_features=vfm_dim + resolut1[0] * resolut1[1],
+        ),
     ),
 )
 model_imap = dict(input="batch.video", condit="batch.bbox")
@@ -208,12 +212,53 @@ loss_fn_t = loss_fn_v = dict(
     recon=dict(
         metric=dict(type=MSELoss),
         map=dict(input="output.recon", target="output.feature"),
-        transform=dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+        transform=dict(
+            type=Compose,
+            transforms=[
+                dict(
+                    type=Lambda,
+                    ikeys=[["input"]],  # (b,t,c,h,w)
+                    func=lambda _: _[:, :, :vfm_dim, :, :],
+                ),
+                dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+            ],
+        ),
     ),
-    ssc=dict(
-        metric=dict(type=SlotContrastLoss),
-        map=dict(input="output.slotz"),
-        weight=0.5,
+    tsim=dict(
+        metric=dict(type=CrossEntropyLoss),
+        map=dict(input="output.recon", target="output.feature"),
+        transform=dict(
+            type=Compose,
+            transforms=[
+                dict(
+                    type=Lambda,
+                    ikeys=[["input"]],  # remove last frame + slice prediction
+                    func=lambda _: _[:, :-1, vfm_dim:, :, :],
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["input", "target"]],
+                    func=lambda _: rearrange(_, "b t c h w -> b t (h w) c"),
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["target"]],
+                    func=dict(
+                        type=FeatureTimeSimilarity,
+                        time_shift=1,
+                        thresh=None,
+                        tau=1.0,
+                        softmax=True,
+                    ),
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["input", "target"]],  # c==hw
+                    func=lambda _: rearrange(_, "b t hw c -> (b t) c hw"),
+                ),
+            ],
+        ),
+        weight=0.1,
     ),
 )
 _acc_dict_ = dict(

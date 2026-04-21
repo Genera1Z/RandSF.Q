@@ -9,9 +9,8 @@ from object_centric_bench.datum import (
     Normalize,
     CenterCrop,
     Lambda,
-    MOVi,
+    YTVIS,
     ClPadToMax1,
-    ClPadTo1,
     DefaultCollate,
 )
 from object_centric_bench.learn import (
@@ -19,7 +18,8 @@ from object_centric_bench.learn import (
     GradScaler,
     ClipGradNorm,
     MSELoss,
-    SlotContrastLoss,
+    CrossEntropyLoss,
+    FeatureTimeSimilarity,
     mBO,
     ARI,
     mIoU,
@@ -35,6 +35,7 @@ from object_centric_bench.model import (
     DINO2ViT,
     Identity,
     MLP,
+    NormalShared,
     SlotAttention,
     RSFQTransit,
     ARRandTransformerDecoder,
@@ -49,7 +50,7 @@ from object_centric_bench.util_model import interpolat_argmax_attent
 
 ### global
 
-max_num = 10 + 1
+max_num = 6 + 1
 resolut0 = [256, 256]
 resolut1 = [16, 16]
 emb_dim = 256
@@ -58,7 +59,7 @@ vfm_dim = 384
 total_step = 50000  # 100000 better
 val_interval = total_step // 40
 batch_size_t = 32 // 4  # 64 better
-batch_size_v = batch_size_t
+batch_size_v = 1
 num_work = 4
 lr = 2e-4 / 4  # scale with batch_size
 
@@ -81,17 +82,18 @@ transform_v = [
     dict(type=Normalize, keys=["video"], mean=[IMAGENET_MEAN], std=[IMAGENET_STD]),
 ]
 dataset_t = dict(
-    type=MOVi,
-    data_file="movi_c/train.lmdb",
-    extra_keys=["segment", "bbox"],
-    transform0=dict(type=StridedRandomSliceSequence, keys=["video", "segment"], size=6),
+    type=YTVIS,
+    data_file="ytvis_hq/train.lmdb",
+    extra_keys=["segment"],
+    transform0=dict(type=StridedRandomSliceSequence, keys=["video", "segment"], size=5),
     transform=dict(type=Compose, transforms=transform_t),
     base_dir=...,
+    ts=30,
 )
 dataset_v = dict(
-    type=MOVi,
-    data_file="movi_c/val.lmdb",
-    extra_keys=["segment", "bbox"],
+    type=YTVIS,
+    data_file="ytvis_hq/val.lmdb",
+    extra_keys=["segment"],
     transform=dict(type=Compose, transforms=transform_v),
     base_dir=...,
 )
@@ -99,7 +101,6 @@ collate_fn_t = dict(
     type=ComposeNoStar,
     transforms=[
         dict(type=ClPadToMax1, keys=["segment"], dims=[3]),
-        dict(type=ClPadTo1, keys=["bbox"], dims=[1], num=[max_num]),
         dict(type=DefaultCollate),
     ],
 )
@@ -126,7 +127,7 @@ model = dict(
     encode_project=dict(
         type=MLP, in_dim=vfm_dim, dims=[vfm_dim, vfm_dim], ln="pre", dropout=0.0
     ),
-    initializ=dict(type=MLP, in_dim=4, dims=[emb_dim] * 2),
+    initializ=dict(type=NormalShared, num=max_num, dim=emb_dim),  # >NormalSeparat
     aggregat=dict(
         type=SlotAttention,
         num_iter=3,  # 3 > 2, 1
@@ -138,7 +139,7 @@ model = dict(
     ),
     transit=dict(
         type=RSFQTransit,
-        dt=6,  # XXX XXX XXX  # 6 > 5, 4
+        dt=5,  # XXX XXX XXX
         ci=vfm_dim,
         c=emb_dim,
         nhead=4,
@@ -188,10 +189,14 @@ model = dict(
             ),
             num_layers=4,
         ),
-        readout=dict(type=Identity),
+        readout=dict(
+            type=Linear,
+            in_features=vfm_dim,
+            out_features=vfm_dim + resolut1[0] * resolut1[1],
+        ),
     ),
 )
-model_imap = dict(input="batch.video", condit="batch.bbox")
+model_imap = dict(input="batch.video")
 model_omap = ["feature", "slotz", "attenta", "recon", "attentd"]
 ckpt_map = []  # target<-source
 freez = [r"^m\.encode_backbone\..*"]
@@ -207,12 +212,53 @@ loss_fn_t = loss_fn_v = dict(
     recon=dict(
         metric=dict(type=MSELoss),
         map=dict(input="output.recon", target="output.feature"),
-        transform=dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+        transform=dict(
+            type=Compose,
+            transforms=[
+                dict(
+                    type=Lambda,
+                    ikeys=[["input"]],  # (b,t,c,h,w)
+                    func=lambda _: _[:, :, :vfm_dim, :, :],
+                ),
+                dict(type=Lambda, ikeys=[["target"]], func=lambda _: _.detach()),
+            ],
+        ),
     ),
-    ssc=dict(
-        metric=dict(type=SlotContrastLoss),
-        map=dict(input="output.slotz"),
-        weight=0.5,
+    tsim=dict(
+        metric=dict(type=CrossEntropyLoss),
+        map=dict(input="output.recon", target="output.feature"),
+        transform=dict(
+            type=Compose,
+            transforms=[
+                dict(
+                    type=Lambda,
+                    ikeys=[["input"]],  # remove last frame + slice prediction
+                    func=lambda _: _[:, :-1, vfm_dim:, :, :],
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["input", "target"]],
+                    func=lambda _: rearrange(_, "b t c h w -> b t (h w) c"),
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["target"]],
+                    func=dict(
+                        type=FeatureTimeSimilarity,
+                        time_shift=1,
+                        thresh=None,
+                        tau=1.0,
+                        softmax=True,
+                    ),
+                ),
+                dict(
+                    type=Lambda,
+                    ikeys=[["input", "target"]],  # c==hw
+                    func=lambda _: rearrange(_, "b t hw c -> (b t) c hw"),
+                ),
+            ],
+        ),
+        weight=0.1,
     ),
 )
 _acc_dict_ = dict(
@@ -237,7 +283,7 @@ acc_fn_v = dict(
 before_step = [
     dict(
         type=Lambda,
-        ikeys=[["batch.video", "batch.segment", "batch.bbox"]],
+        ikeys=[["batch.video", "batch.segment"]],
         func=lambda _: _.cuda(),
     ),
     dict(
