@@ -68,7 +68,9 @@ Official source code, model checkpoints and training logs for paper "**Predictin
 [Releases](https://github.com/Genera1Z/RandSF.Q/releases).
 ```shell
 - dataset-movi_c/       # dataset files in LMDB format
-- dataset-ytvis/
+- dataset-movi_e/
+- dataset-ytvis_hq/
+- dataset-ytvis_2022/
 - archive-randsfq/      # *** our RandSF.Q models and logs ***
 - archive-randsfq-tsim/
 - archive-slotcontrast/ # baseline model checkpoints and training logs
