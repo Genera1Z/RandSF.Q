@@ -189,17 +189,19 @@ def main(args):
     acc_fn_v = MetricWrap(detach=True, **build_from_config(cfg.acc_fn_v))
     # acc_fn.compile()  # sometimes nan ???
 
-    wabrun = wandb.init(  # comment this to disable wandb
-        project=args.project,
-        group=f"{Path('').cwd().name}/{cfg_name}",
-        name=f"{seed}",
-        config=json.loads(json.dumps(cfg.__dict__, default=str)),
-        reinit=True,
-    )
+    if args.project:
+        wabrun = wandb.init(  # comment this to disable wandb
+            project=args.project,
+            group=f"{Path('').cwd().name}/{cfg_name}",
+            name=f"{seed}",
+            config=json.loads(json.dumps(cfg.__dict__, default=str)),
+            reinit=True,
+        )
     for cb in cfg.callback_t + cfg.callback_v:
         if cb.type.__name__ in ["AverageLog", "HandleLog"]:
             cb.log_file = f"{save_path}.txt"
-            cb.wabrun = wabrun  # comment this to disable wandb
+            if args.project:
+                cb.wabrun = wabrun  # comment this to disable wandb
         elif cb.type.__name__ == "SaveModel":
             cb.save_dir = save_path
     callback_t = build_from_config(cfg.callback_t)
@@ -246,7 +248,7 @@ def main(args):
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument("--project", type=str, default="debug")
+    parser.add_argument("--project", type=str, default=None)
     parser.add_argument(
         "--seed",
         type=int,
